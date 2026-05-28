@@ -6,6 +6,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { Home } from "./pages/Home";
 import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
+import { Workspace } from "./pages/Workspace";
 
 // Wrapper di protezione
 function ProtectedRoute({ children }: { children: JSX.Element }) {
@@ -68,7 +69,14 @@ export default function App() {
           </Route>
 
           {/* Il Workspace sta fuori dal Footer, ma dentro la Navbar */}
-          <Route path="/workspace" element={<ProtectedRoute></ProtectedRoute>} />
+          <Route
+            path="/workspace"
+            element={
+              <ProtectedRoute>
+                <Workspace />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         <Route path="*" element={<div className="h-screen flex items-center justify-center font-mono text-xl bg-neutral-100">404 - FLOWFRAME NOT FOUND</div>} />
