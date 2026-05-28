@@ -7,6 +7,7 @@ import { Home } from "./pages/Home";
 import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
 import { Workspace } from "./pages/Workspace";
+import { UxLibrary } from "./pages/UxLibrary";
 
 // Wrapper di protezione
 function ProtectedRoute({ children }: { children: JSX.Element }) {
@@ -55,6 +56,7 @@ export default function App() {
           {/* Sotto-alberatura con Footer */}
           <Route element={<StandardPageLayout />}>
             <Route path="/" element={<Home />} />
+            <Route path="/ux-library" element={<UxLibrary />} />
             <Route
               path="/dashboard"
               element={
