@@ -87,4 +87,38 @@ export const flowframeApi = {
     if (!response.ok) throw new Error("Errore recupero insight IA dal server");
     return response.json();
   },
+
+  getCurrentUser: async (token: string) => {
+    const response = await fetch(`${API_URL}/api/utenti/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error("Errore recupero utente");
+    return response.json();
+  },
+
+  updateProfile: async (userData: { username: string; email: string }, token: string) => {
+    const response = await fetch(`${API_URL}/api/utenti/me`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(userData),
+    });
+    if (!response.ok) throw new Error("Errore aggiornamento profilo");
+    return response.json();
+  },
+
+  changePassword: async (passwordData: Record<string, string>, token: string) => {
+    const response = await fetch(`${API_URL}/api/utenti/me/password`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(passwordData),
+    });
+    if (!response.ok) throw new Error("Errore cambio password");
+    return response.json();
+  },
 };

@@ -5,8 +5,8 @@ import { type RootState } from "../store/store";
 import { loadProject, resetProject } from "../store/projectSlice";
 import { logout } from "../store/authSlice";
 import { flowframeApi } from "../services/api";
+import { UserProfile } from "../components/layout/UserProfile";
 
-// 1. Diamo una forma rigorosa ai dati che arrivano dal backend (Basta "any")
 interface ProjectResponse {
   id: string;
   titolo: string;
@@ -20,7 +20,6 @@ export function Dashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // 2. La funzione ora vive dentro l'effetto: niente errori di hoisting o di dipendenze
   useEffect(() => {
     const fetchProjects = async () => {
       try {
@@ -43,7 +42,6 @@ export function Dashboard() {
     navigate("/workspace");
   };
 
-  // 3. Tipizziamo il parametro per far felice TypeScript
   const handleOpenProject = (project: ProjectResponse) => {
     const parsedBlueprint = project.blueprint ? JSON.parse(project.blueprint) : [];
     dispatch(
@@ -62,7 +60,6 @@ export function Dashboard() {
       await flowframeApi.deleteProject(id, token!);
       setProjects(projects.filter((p) => p.id !== id));
     } catch (error) {
-      // 4. Ora usiamo l'errore catturato e il linter smette di piangere
       console.error("Errore distruzione progetto:", error);
       alert("Errore durante l'eliminazione");
     }
@@ -118,6 +115,8 @@ export function Dashboard() {
           ))}
         </div>
       )}
+
+      <UserProfile></UserProfile>
     </div>
   );
 }
