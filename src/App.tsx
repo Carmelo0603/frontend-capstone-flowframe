@@ -8,6 +8,8 @@ import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
 import { Workspace } from "./pages/Workspace";
 import { UxLibrary } from "./pages/UxLibrary";
+import { Filosofia } from "./pages/Filosofia";
+import { Contatti } from "./pages/Contatti";
 
 // Wrapper di protezione
 function ProtectedRoute({ children }: { children: JSX.Element }) {
@@ -66,8 +68,8 @@ export default function App() {
               }
             />
 
-            <Route path="/filosofia" element={<PlaceholderPage title="FILOSOFIA DEL PROGETTO" />} />
-            <Route path="/contatti" element={<PlaceholderPage title="AREA CONTATTI" />} />
+            <Route path="/filosofia" element={<Filosofia />} />
+            <Route path="/contatti" element={<Contatti />} />
           </Route>
 
           {/* Il Workspace sta fuori dal Footer, ma dentro la Navbar */}
