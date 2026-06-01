@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080";
+const API_URL = "https://ovary-disparate-justice.ngrok-free.dev";
 
 export const flowframeApi = {
   login: async (credentials: Record<string, string>) => {
