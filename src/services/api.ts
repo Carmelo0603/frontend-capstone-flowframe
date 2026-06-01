@@ -1,4 +1,4 @@
-const API_URL = "https://ovary-disparate-justice.ngrok-free.dev";
+const API_URL = "https://quixotic-edie-carmelo-fdd85a3b.koyeb.app";
 
 export const flowframeApi = {
   login: async (credentials: Record<string, string>) => {
