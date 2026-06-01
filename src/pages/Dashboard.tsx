@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { type RootState } from "../store/store";
 import { loadProject, resetProject } from "../store/projectSlice";
-import { logout } from "../store/authSlice";
 import { flowframeApi } from "../services/api";
 import { UserProfile } from "../components/layout/UserProfile";
 
@@ -26,7 +25,7 @@ export function Dashboard() {
         const data = await flowframeApi.getMyProjects(token!);
         setProjects(data);
       } catch (error) {
-        console.error("Errore recupero progetti:", error);
+        console.error(error);
       } finally {
         setIsLoading(false);
       }
@@ -60,14 +59,9 @@ export function Dashboard() {
       await flowframeApi.deleteProject(id, token!);
       setProjects(projects.filter((p) => p.id !== id));
     } catch (error) {
-      console.error("Errore distruzione progetto:", error);
+      console.error(error);
       alert("Errore durante l'eliminazione");
     }
-  };
-
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
   };
 
   return (

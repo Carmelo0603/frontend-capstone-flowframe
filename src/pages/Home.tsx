@@ -16,13 +16,12 @@ export const Home: React.FC = () => {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 15 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
   };
 
   return (
     <div className="flex-1 bg-white flex flex-col items-center justify-center py-24 px-6">
       <motion.div className="max-w-5xl w-full" variants={containerVariants} initial="hidden" animate="visible">
-        {/* HERO SECTION */}
         <motion.div variants={itemVariants} className="text-center mb-32">
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-neutral-900 mb-6 uppercase">
             Logic First. <br className="hidden md:block" />
@@ -41,7 +40,6 @@ export const Home: React.FC = () => {
           </button>
         </motion.div>
 
-        {/* FEATURES GRID */}
         <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-12 border-t border-neutral-200 pt-16">
           <div className="flex flex-col items-start">
             <div className="bg-neutral-100 p-4 mb-6">

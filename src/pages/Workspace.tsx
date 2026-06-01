@@ -43,28 +43,24 @@ export function Workspace() {
       target: ".tour-sidebar",
       title: "Libreria Componenti",
       content: "Qui trovi tutti i blocchi Lo-Fi suddivisi per categoria. Clicca su un componente per aggiungerlo istantaneamente al tuo canvas.",
-      disableBeacon: true,
       placement: "right",
     },
     {
       target: ".tour-controls",
       title: "Barra di Controllo",
       content: "Nomina il progetto, cambia la visualizzazione (Mobile, Tablet, Desktop), naviga nella cronologia (Undo/Redo) e salva sul Database.",
-      disableBeacon: true,
       placement: "bottom",
     },
     {
       target: "#flowframe-canvas-area",
       title: "Il Canvas",
       content: "Il tuo spazio di lavoro Logic-First. Trascina i blocchi per riordinarli (Drag & Drop) e cliccali per selezionarli.",
-      disableBeacon: true,
       placement: "auto",
     },
     {
       target: ".tour-settings",
       title: "Pannello Ispettore",
       content: "Quando selezioni un blocco nel Canvas, le sue impostazioni appariranno qui. Modifica testi, stili e dati in tempo reale.",
-      disableBeacon: true,
       placement: "left",
     },
   ];
@@ -93,10 +89,7 @@ export function Workspace() {
   };
 
   const handleSaveProject = async () => {
-    if (!token) {
-      alert("Autenticazione mancante. Effettua il login.");
-      return;
-    }
+    if (!token) return;
 
     try {
       setIsSaving(true);
@@ -108,18 +101,16 @@ export function Workspace() {
 
         dispatch(
           loadProject({
-            id: targetProjectId,
+            id: targetProjectId!,
             title: currentProjectTitle,
             blueprint: blueprint,
           }),
         );
       }
 
-      await flowframeApi.updateBlueprint(targetProjectId, JSON.stringify(blueprint), token);
-      alert("Progetto salvato con successo nella dashboard!");
+      await flowframeApi.updateBlueprint(targetProjectId!, JSON.stringify(blueprint), token);
     } catch (error) {
       console.error(error);
-      alert("Errore durante il salvataggio sul database.");
     } finally {
       setIsSaving(false);
     }
@@ -137,34 +128,36 @@ export function Workspace() {
         disableScrolling={false}
         floaterProps={{ disableAnimation: true }}
         callback={handleJoyrideCallback}
-        styles={{
-          options: {
-            zIndex: 99999,
-            primaryColor: "#171717",
-            textColor: "#171717",
-            backgroundColor: "#ffffff",
-            arrowColor: "#ffffff",
-          },
-          tooltip: {
-            borderRadius: "0px",
-            maxWidth: "320px",
-            padding: "24px",
-          },
-          buttonNext: {
-            borderRadius: "0px",
-            fontSize: "12px",
-            fontWeight: "bold",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          },
-          buttonBack: {
-            color: "#737373",
-          },
-          buttonSkip: {
-            color: "#737373",
-            fontSize: "12px",
-          },
-        }}
+        styles={
+          {
+            options: {
+              zIndex: 99999,
+              primaryColor: "#171717",
+              textColor: "#171717",
+              backgroundColor: "#ffffff",
+              arrowColor: "#ffffff",
+            },
+            tooltip: {
+              borderRadius: "0px",
+              maxWidth: "320px",
+              padding: "24px",
+            },
+            buttonNext: {
+              borderRadius: "0px",
+              fontSize: "12px",
+              fontWeight: "bold",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            },
+            buttonBack: {
+              color: "#737373",
+            },
+            buttonSkip: {
+              color: "#737373",
+              fontSize: "12px",
+            },
+          } as any
+        }
       />
 
       <aside className="tour-sidebar w-64 bg-white border-r border-neutral-200 flex flex-col shadow-sm z-10 shrink-0">
@@ -296,7 +289,7 @@ export function Workspace() {
 
                     let childrenProps: Record<string, unknown> | undefined = undefined;
 
-                    const renderChild = (child: { id: string; type: string; settings: Record<string, unknown> }) => {
+                    const renderChild = (child: any) => {
                       const childEntry = BlockComponents[child.type];
                       const ChildComponent = childEntry?.Component;
                       if (!ChildComponent) return null;
