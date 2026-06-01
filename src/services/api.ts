@@ -17,6 +17,33 @@ export const flowframeApi = {
     return response.json();
   },
 
+  register: async (userData: Record<string, string>) => {
+    const response = await fetch(`${API_URL}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || "Errore durante la registrazione");
+    }
+    return response.json();
+  },
+
+  verifyEmail: async (code: string) => {
+    const response = await fetch(`${API_URL}/auth/verify?code=${code}`, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error("Codice di verifica non valido o scaduto");
+    }
+
+    return response.text();
+  },
+
   createProject: async (title: string, token: string) => {
     const response = await fetch(`${API_URL}/api/progetti`, {
       method: "POST",

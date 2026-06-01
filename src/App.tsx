@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { type RootState } from "./store/store";
-import { Login } from "./pages/Login";
+import { AuthPage } from "./pages/AuthPage";
 import { Dashboard } from "./pages/Dashboard";
 import { Home } from "./pages/Home";
 import { Navbar } from "./components/layout/Navbar";
@@ -10,11 +10,11 @@ import { Workspace } from "./pages/Workspace";
 import { UxLibrary } from "./pages/UxLibrary";
 import { Filosofia } from "./pages/Filosofia";
 import { Contatti } from "./pages/Contatti";
+import { VerifyEmail } from "./pages/VerifyEmail";
 
-// Wrapper di protezione
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const token = useSelector((state: RootState) => state.auth.token);
-  if (!token) return <Navigate to="/login" replace />;
+  if (!token) return <Navigate to="/auth" replace />;
   return children;
 }
 
@@ -40,18 +40,11 @@ function StandardPageLayout() {
   );
 }
 
-// Pagine fittizie per i link
-const PlaceholderPage = ({ title }: { title: string }) => (
-  <div className="flex-1 flex items-center justify-center p-8 text-neutral-400 font-mono text-sm border-2 border-dashed border-neutral-200 m-8">
-    [ {title} - CANTIERE APERTO ]
-  </div>
-);
-
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/auth" element={<AuthPage />} />
 
         {/* Alberatura con Navbar Globale */}
         <Route element={<RootLayout />}>
@@ -70,6 +63,7 @@ export default function App() {
 
             <Route path="/filosofia" element={<Filosofia />} />
             <Route path="/contatti" element={<Contatti />} />
+            <Route path="/verify" element={<VerifyEmail />} />
           </Route>
 
           {/* Il Workspace sta fuori dal Footer, ma dentro la Navbar */}

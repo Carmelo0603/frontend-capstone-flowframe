@@ -4,16 +4,21 @@ import { type RootState } from "../store/store";
 import { flowframeApi } from "../services/api";
 import { addBlock, reorderBlocks, selectBlock, setDeviceMode, undo, redo, updateProjectTitle, loadProject } from "../store/projectSlice";
 import { BlockComponents, BlockCategories } from "../components/blocks/BlockRegistry";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SortableBlock } from "../components/blocks/SortableBlock";
 import { SettingPanel } from "../components/layout/SettingPanel";
 import { AiChat } from "../components/layout/AiChat";
 import { ExportPanel } from "../components/layout/ExportPanel";
+import { Joyride, STATUS } from "react-joyride";
+import type { Step } from "react-joyride";
 
 export function Workspace() {
   const dispatch = useDispatch();
   const [isSaving, setIsSaving] = useState(false);
+
+  const [runTour, setRunTour] = useState(() => !localStorage.getItem("flowframe_tutorial_seen"));
+  const [tourKey, setTourKey] = useState(0);
 
   const { blueprint, selectedBlockId, deviceMode, past, future, currentProjectTitle, currentProjectId } = useSelector((state: RootState) => state.project);
   const token = useSelector((state: RootState) => state.auth?.token);
@@ -22,6 +27,47 @@ export function Workspace() {
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
+
+  const handleJoyrideCallback = (data: { status: string }) => {
+    const { status } = data;
+    const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
+
+    if (finishedStatuses.includes(status)) {
+      setRunTour(false);
+      localStorage.setItem("flowframe_tutorial_seen", "true");
+    }
+  };
+
+  const tourSteps: Step[] = [
+    {
+      target: ".tour-sidebar",
+      title: "Libreria Componenti",
+      content: "Qui trovi tutti i blocchi Lo-Fi suddivisi per categoria. Clicca su un componente per aggiungerlo istantaneamente al tuo canvas.",
+      disableBeacon: true,
+      placement: "right",
+    },
+    {
+      target: ".tour-controls",
+      title: "Barra di Controllo",
+      content: "Nomina il progetto, cambia la visualizzazione (Mobile, Tablet, Desktop), naviga nella cronologia (Undo/Redo) e salva sul Database.",
+      disableBeacon: true,
+      placement: "bottom",
+    },
+    {
+      target: "#flowframe-canvas-area",
+      title: "Il Canvas",
+      content: "Il tuo spazio di lavoro Logic-First. Trascina i blocchi per riordinarli (Drag & Drop) e cliccali per selezionarli.",
+      disableBeacon: true,
+      placement: "auto",
+    },
+    {
+      target: ".tour-settings",
+      title: "Pannello Ispettore",
+      content: "Quando selezioni un blocco nel Canvas, le sue impostazioni appariranno qui. Modifica testi, stili e dati in tempo reale.",
+      disableBeacon: true,
+      placement: "left",
+    },
+  ];
 
   const handleAddBlock = (type: string) => {
     const newBlock = {
@@ -34,15 +80,14 @@ export function Workspace() {
     dispatch(addBlock(newBlock));
   };
 
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       const activeBlock = blueprint.find((b) => b.id === active.id);
       const overBlock = blueprint.find((b) => b.id === over.id);
 
-      // SAFETY LOCK
       if (activeBlock && overBlock && activeBlock.parentId === overBlock.parentId && activeBlock.slot === overBlock.slot) {
-        dispatch(reorderBlocks({ activeId: active.id, overId: over.id }));
+        dispatch(reorderBlocks({ activeId: active.id as string, overId: over.id as string }));
       }
     }
   };
@@ -57,12 +102,10 @@ export function Workspace() {
       setIsSaving(true);
       let targetProjectId = currentProjectId;
 
-      // Fase 1: Se il progetto non ha ID (è nuovo), facciamo la POST per creare l'entità col titolo
       if (!targetProjectId) {
         const newProject = await flowframeApi.createProject(currentProjectTitle, token);
         targetProjectId = newProject.id || newProject.idProgetto;
 
-        // Sincronizziamo l'ID nello store Redux per evitare duplicati futuri
         dispatch(
           loadProject({
             id: targetProjectId,
@@ -72,7 +115,6 @@ export function Workspace() {
         );
       }
 
-      // Fase 2: Salviamo l'array strutturale convertito in stringa text/plain su Spring Boot
       await flowframeApi.updateBlueprint(targetProjectId, JSON.stringify(blueprint), token);
       alert("Progetto salvato con successo nella dashboard!");
     } catch (error) {
@@ -84,11 +126,59 @@ export function Workspace() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] w-full bg-neutral-100 text-neutral-900 font-sans overflow-hidden">
-      {/* SIDEBAR SINISTRA - Categorie */}
-      <aside className="w-64 bg-white border-r border-neutral-200 flex flex-col shadow-sm z-10 shrink-0">
-        <div className="p-6 border-b border-neutral-200">
+    <div className="flex h-[calc(100vh-4rem)] w-full bg-neutral-100 text-neutral-900 font-sans overflow-hidden relative">
+      <Joyride
+        key={tourKey}
+        steps={tourSteps}
+        run={runTour}
+        continuous
+        showProgress
+        showSkipButton
+        disableScrolling={false}
+        floaterProps={{ disableAnimation: true }}
+        callback={handleJoyrideCallback}
+        styles={{
+          options: {
+            zIndex: 99999,
+            primaryColor: "#171717",
+            textColor: "#171717",
+            backgroundColor: "#ffffff",
+            arrowColor: "#ffffff",
+          },
+          tooltip: {
+            borderRadius: "0px",
+            maxWidth: "320px",
+            padding: "24px",
+          },
+          buttonNext: {
+            borderRadius: "0px",
+            fontSize: "12px",
+            fontWeight: "bold",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+          },
+          buttonBack: {
+            color: "#737373",
+          },
+          buttonSkip: {
+            color: "#737373",
+            fontSize: "12px",
+          },
+        }}
+      />
+
+      <aside className="tour-sidebar w-64 bg-white border-r border-neutral-200 flex flex-col shadow-sm z-10 shrink-0">
+        <div className="p-6 border-b border-neutral-200 flex justify-between items-center">
           <h2 className="text-sm font-black tracking-wider text-neutral-400 uppercase">Componenti Lo-Fi</h2>
+          <button
+            onClick={() => {
+              setRunTour(true);
+              setTourKey((prev) => prev + 1);
+            }}
+            className="text-[10px] font-bold text-neutral-400 hover:text-neutral-900 uppercase underline"
+          >
+            Help
+          </button>
         </div>
         <div className="flex-1 overflow-y-auto">
           {Object.entries(BlockCategories).map(([categoryName, blocks]) => (
@@ -113,10 +203,8 @@ export function Workspace() {
         <AiChat />
       </aside>
 
-      {/* CANVAS */}
       <main className="flex-1 bg-neutral-200 overflow-y-auto flex flex-col items-center p-8 pb-32 relative">
-        {/* CONTROLLI VETTORIALI E STORICO */}
-        <div className="flex gap-6 mb-6 shrink-0 items-center">
+        <div className="tour-controls flex gap-6 mb-6 shrink-0 items-center">
           <div className="flex">
             <input
               type="text"
@@ -125,7 +213,6 @@ export function Workspace() {
               placeholder="NOME PROGETTO"
               className="bg-white border border-neutral-200 px-3 py-1.5 text-xs font-bold tracking-tight uppercase rounded-sm outline-none focus:ring-1 focus:ring-neutral-900 w-48 font-mono shadow-sm transition-all"
             />
-            {/* PULSANTE ORIGINALE SALVA DB AGGREGATO ALLA BARRA */}
             <button
               onClick={handleSaveProject}
               disabled={isSaving || blueprint.length === 0}
@@ -188,7 +275,6 @@ export function Workspace() {
           <ExportPanel />
         </div>
 
-        {/* CONTENITORE CANVAS */}
         <div
           id="flowframe-canvas-area"
           className={`w-full bg-white shadow-xl border border-neutral-200 min-h-[800px] h-fit flex flex-col p-0 overflow-hidden transition-all duration-300 ease-in-out shrink-0 ${deviceMode === "mobile" ? "max-w-[375px]" : deviceMode === "tablet" ? "max-w-[768px]" : "max-w-5xl"}`}
@@ -199,7 +285,6 @@ export function Workspace() {
             </div>
           ) : (
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              {/* Contesto Drag & Drop Principale (Root) */}
               <SortableContext items={blueprint.filter((b) => !b.parentId).map((b) => b.id)} strategy={verticalListSortingStrategy}>
                 {blueprint
                   .filter((b) => !b.parentId)
@@ -209,9 +294,9 @@ export function Workspace() {
                     const Component = registryEntry.Component;
                     const isSelected = block.id === selectedBlockId;
 
-                    let childrenProps: any = {};
+                    let childrenProps: Record<string, unknown> | undefined = undefined;
 
-                    const renderChild = (child: any) => {
+                    const renderChild = (child: { id: string; type: string; settings: Record<string, unknown> }) => {
                       const childEntry = BlockComponents[child.type];
                       const ChildComponent = childEntry?.Component;
                       if (!ChildComponent) return null;
@@ -252,12 +337,15 @@ export function Workspace() {
 
                     if (block.type === "STACK") {
                       const stackChildren = blueprint.filter((b) => b.parentId === block.id);
-                      childrenProps =
-                        stackChildren.length > 0 ? (
-                          <SortableContext items={stackChildren.map((b) => b.id)} strategy={verticalListSortingStrategy}>
-                            {stackChildren.map(renderChild)}
-                          </SortableContext>
-                        ) : undefined;
+                      if (stackChildren.length > 0) {
+                        childrenProps = {
+                          children: (
+                            <SortableContext items={stackChildren.map((b) => b.id)} strategy={verticalListSortingStrategy}>
+                              {stackChildren.map(renderChild)}
+                            </SortableContext>
+                          ),
+                        };
+                      }
                     }
 
                     return (
@@ -267,7 +355,7 @@ export function Workspace() {
                         className={`transition-all relative ${isSelected ? "ring-2 ring-neutral-900 z-10" : "hover:ring-2 hover:ring-neutral-300 hover:z-10"}`}
                       >
                         <SortableBlock id={block.id}>
-                          <Component data={block.settings} childrenBlocks={block.type === "COLUMNS" || block.type === "STACK" ? childrenProps : undefined} />
+                          <Component data={block.settings} childrenBlocks={childrenProps} />
                         </SortableBlock>
                       </div>
                     );
@@ -278,8 +366,9 @@ export function Workspace() {
         </div>
       </main>
 
-      {/* SIDEBAR DESTRA - Ispettore */}
-      <SettingPanel />
+      <div className="tour-settings shrink-0">
+        <SettingPanel />
+      </div>
     </div>
   );
 }
