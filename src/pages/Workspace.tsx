@@ -116,45 +116,38 @@ export function Workspace() {
     }
   };
 
+  const joyrideStyles: any = {
+    options: {
+      zIndex: 99999,
+      primaryColor: "#171717",
+      textColor: "#171717",
+      backgroundColor: "#ffffff",
+      arrowColor: "#ffffff",
+    },
+    tooltip: {
+      borderRadius: "0px",
+      maxWidth: "320px",
+      padding: "24px",
+    },
+    buttonNext: {
+      borderRadius: "0px",
+      fontSize: "12px",
+      fontWeight: "bold",
+      textTransform: "uppercase",
+      letterSpacing: "0.05em",
+    },
+    buttonBack: {
+      color: "#737373",
+    },
+    buttonSkip: {
+      color: "#737373",
+      fontSize: "12px",
+    },
+  };
+
   return (
     <div className="flex h-[calc(100vh-4rem)] w-full bg-neutral-100 text-neutral-900 font-sans overflow-hidden relative">
-      <Joyride
-        key={tourKey}
-        steps={tourSteps}
-        run={runTour}
-        continuous
-        onEvent={handleJoyrideCallback}
-        options={{
-          zIndex: 99999,
-          primaryColor: "#171717",
-          textColor: "#171717",
-          backgroundColor: "#ffffff",
-          arrowColor: "#ffffff",
-          buttons: ["back", "close", "primary", "skip"],
-          skipBeacon: true,
-        }}
-        styles={{
-          tooltip: {
-            borderRadius: "0px",
-            maxWidth: "320px",
-            padding: "24px",
-          },
-          buttonNext: {
-            borderRadius: "0px",
-            fontSize: "12px",
-            fontWeight: "bold",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-          },
-          buttonBack: {
-            color: "#737373",
-          },
-          buttonSkip: {
-            color: "#737373",
-            fontSize: "12px",
-          },
-        }}
-      />
+      <Joyride key={tourKey} steps={tourSteps} run={runTour} continuous onEvent={handleJoyrideCallback} styles={joyrideStyles} />
 
       <aside className="tour-sidebar w-64 bg-white border-r border-neutral-200 flex flex-col shadow-sm z-10 shrink-0">
         <div className="p-6 border-b border-neutral-200 flex justify-between items-center">
