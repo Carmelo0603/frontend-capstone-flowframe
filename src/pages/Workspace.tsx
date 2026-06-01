@@ -123,41 +123,37 @@ export function Workspace() {
         steps={tourSteps}
         run={runTour}
         continuous
-        showProgress
-        showSkipButton
-        disableScrolling={false}
-        floaterProps={{ disableAnimation: true }}
-        callback={handleJoyrideCallback}
-        styles={
-          {
-            options: {
-              zIndex: 99999,
-              primaryColor: "#171717",
-              textColor: "#171717",
-              backgroundColor: "#ffffff",
-              arrowColor: "#ffffff",
-            },
-            tooltip: {
-              borderRadius: "0px",
-              maxWidth: "320px",
-              padding: "24px",
-            },
-            buttonNext: {
-              borderRadius: "0px",
-              fontSize: "12px",
-              fontWeight: "bold",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            },
-            buttonBack: {
-              color: "#737373",
-            },
-            buttonSkip: {
-              color: "#737373",
-              fontSize: "12px",
-            },
-          } as any
-        }
+        onEvent={handleJoyrideCallback}
+        options={{
+          zIndex: 99999,
+          primaryColor: "#171717",
+          textColor: "#171717",
+          backgroundColor: "#ffffff",
+          arrowColor: "#ffffff",
+          buttons: ["back", "close", "primary", "skip"],
+          skipBeacon: true,
+        }}
+        styles={{
+          tooltip: {
+            borderRadius: "0px",
+            maxWidth: "320px",
+            padding: "24px",
+          },
+          buttonNext: {
+            borderRadius: "0px",
+            fontSize: "12px",
+            fontWeight: "bold",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+          },
+          buttonBack: {
+            color: "#737373",
+          },
+          buttonSkip: {
+            color: "#737373",
+            fontSize: "12px",
+          },
+        }}
       />
 
       <aside className="tour-sidebar w-64 bg-white border-r border-neutral-200 flex flex-col shadow-sm z-10 shrink-0">

@@ -12,7 +12,7 @@ import { Filosofia } from "./pages/Filosofia";
 import { Contatti } from "./pages/Contatti";
 import { VerifyEmail } from "./pages/VerifyEmail";
 
-function ProtectedRoute({ children }: { children: JSX.Element }) {
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = useSelector((state: RootState) => state.auth.token);
   if (!token) return <Navigate to="/auth" replace />;
   return children;
