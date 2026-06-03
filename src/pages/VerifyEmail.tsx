@@ -37,7 +37,7 @@ export function VerifyEmail() {
             <div className="bg-neutral-900 text-white p-3 mb-6 text-xs font-bold uppercase tracking-wider">Autenticazione Verificata</div>
             <p className="text-sm text-neutral-600 mb-6">La tua identità è stata confermata. Il sistema è ora sbloccato.</p>
             <Link
-              to="/login"
+              to="/auth"
               className="inline-block w-full bg-neutral-900 text-white text-xs font-bold uppercase tracking-widest p-3 hover:bg-neutral-800 transition-colors"
             >
               Procedi al Login
