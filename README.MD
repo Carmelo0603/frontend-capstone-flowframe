@@ -27,3 +27,7 @@ Crea un file `.env` nella radice del progetto:
 ```env
 VITE_GEMINI_API_KEY=la_tua_api_key_di_gemini
 ```
+
+## Link repository BackEnd
+
+[text](https://github.com/Carmelo0603/backend-capstone-flowframe.git)
